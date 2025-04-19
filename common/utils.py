@@ -9,7 +9,8 @@ def __set_api_key():
   
   if not GROQ_API_KEY:
     ssm = boto3.client('ssm')
-    parameter = ssm.get_parameter(Name='/TEST/CICD/STREAMLIT/GROQ_API_KEY', WithDecryption=True)
+    parameter = ssm.get_parameter(Name='/TEST/CICD/GROQ_API_KEY', WithDecryption=True)
+    #parameter = ssm.get_parameter(Name='/TEST/CICD/STREAMLIT/GROQ_API_KEY', WithDecryption=True)
     os.environ['GROQ_API_KEY'] = parameter['Parameter']['Value']
 
 
