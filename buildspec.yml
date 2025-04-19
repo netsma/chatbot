@@ -1,5 +1,7 @@
 version: 0.2
+# AWS CodeBuild에서 Docker를 사용하기 위한 환경변수 설정
 env:
+  # clone하는 함수
   git-credential-helper: 'yes'
   variables:
     # docker 파라미터 정의
@@ -9,7 +11,7 @@ env:
     AWS_DEFAULT_REGION: ap-northeast-2
 
 phases:
-  pre_build:
+  pre_build: #빌드 전 명령어
     commands:
       # Docker push를 할 ECR에 로그인 필요
       # https://awscli.amazonaws.com/v2/documentation/api/latest/reference/ecr/get-login-password.html
@@ -23,18 +25,18 @@ phases:
         ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
 
-  build:
+  build: #빌드 명령어
     commands:
       - echo Build started on `date`
       # 프로젝트 폴더로 이동
-      - cd ./4-2_AWS_CICD_Example/chatbot
+      #- cd ./4-2_AWS_CICD_Example/chatbot
       - pwd
       - echo Building the Docker image...
       # Github Repository에 있는 Dockerfile의 위치에 맞춰 수정 
       - docker build -f ./Dockerfile -t $IMAGE_REPO_NAME:$IMAGE_TAG .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI
 
-  post_build:
+  post_build: #빌드 후 명령어
     commands:
       - echo package Source...
       - echo push the Docker image...
@@ -42,10 +44,14 @@ phases:
 
       # Give your container name
       - printf '[{"name":"%s","imageUri":"%s"}]' $ECS_CONTAINER_NAME
-        $REPOSITORY_URI > ../../imagedefinitions.json
+        $REPOSITORY_URI > imagedefinitions.json
+      # $REPOSITORY_URI > ../../imagedefinitions.json
+     
       - echo $ECS_CONTAINER_NAME
-      - echo printing ../../imagedefinitions.json
-      - cat ../../imagedefinitions.json
+      - echo printing imagedefinitions.json
+      #- echo printing ../../imagedefinitions.json
+      - cat imagedefinitions.json
+      #- cat ../../imagedefinitions.json
 
 artifacts:
     files: 
